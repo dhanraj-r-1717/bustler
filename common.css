@@ -1,0 +1,182 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+body {
+    background-color: #c8e4ff;
+}
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+  
+.flex-container > div {
+    background-color: #fff;
+    width: 31%;
+    height: 400px;
+    overflow-y: scroll;
+    margin: 10px;
+    text-align: center;
+    font-size: 30px;
+    box-shadow: 10px 10px 5px #71b7cd;
+    position: relative;
+}
+
+.newTaskText {
+    width: 70%;
+    height: 35px;
+    font-size: 18px;
+    padding-left: 5px;
+}
+
+.newTaskButton {
+    padding: 5px 20px;
+    box-shadow: 0px 0px 12px -2px rgb(0 0 0 / 50%);
+    line-height: 1.25;
+    background: DodgerBlue;
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    position: relative;
+    transition: background-color 0.6s ease;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+ol, ul {
+    list-style: none;
+}
+li {
+    display: inline-block;
+    padding: 8px 0 0px;
+    vertical-align: middle;
+}
+a:hover, a:focus {
+    color: #000;
+    text-decoration: none;
+}
+a {
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    text-decoration: none;
+    transition: color 0.1s, background-color 0.1s;
+}
+a {
+    position: relative;
+    display: block;
+    padding: 16px 0;
+    margin: 0 12px;
+    letter-spacing: 1px;
+    font-size: 12px;
+    line-height: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    transition: color 0.1s,background-color 0.1s,padding 0.2s ease-in;
+    color: #000;
+}
+a::before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 3px;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background-color: #000;
+    transform-origin: right top;
+    transform: scale(0, 1);
+    transition: color 0.1s,transform 0.2s ease-out;
+}
+a:active::before {
+    background-color: #000;
+}
+a:hover::before, a:focus::before, a.active::before {
+    transform-origin: left top;
+    transform: scale(1, 1);
+}
+
+.title {
+    font-size: 24px;
+    text-align: center;
+    border: 0;
+    margin: 10px 0;
+}
+
+.title:hover {
+    border-bottom: 1px solid gray;
+}
+
+.taskContainer {
+    text-align: left;
+}
+
+.task {
+    padding: 0;
+    display: block;
+    font-size: 20px;
+    margin: 15px 24px;
+    display: block;
+    padding: 5px 13px;
+    background-color: #eaeaea;
+    position: relative;
+}
+
+input[type="checkbox"]{
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+h3 {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: 28px;
+    padding-top: 8px;
+}
+
+.new {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.new span {
+    font-size: 118px;
+}
+
+.task > input[type="text"]{
+    font-size: 18px;
+    border: 0;
+    background-color: #eaeaea;
+    cursor: pointer;
+}
+
+.task.empty {
+    text-align: center;
+    font-size: 16px;
+    color: #8c8c8c;
+}
+
+.task.completed input[type="text"] {
+    text-decoration: line-through;
+    cursor: text;
+}
+
+.deleteButton {
+    font-size: 14px;
+    position: absolute;
+    right: 10px;
+    top: 6px;
+    cursor: pointer;
+}
+
+.taskDeleteButton {
+    font-style: initial;
+    position: absolute;
+    right: 8px;
+    top: 1px;
+    cursor: pointer;
+}

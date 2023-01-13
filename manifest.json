@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Bustler",
     "description": "A new tab page to remind you of your priorities",
     "version": "1.0.0",
@@ -7,7 +7,6 @@
         "newtab": "index.html"
     },
     "permissions": [
-        "storage",
-        "https://api.hackernoon.com/"
+        "storage"
     ]
 }

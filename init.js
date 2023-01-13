@@ -1,12 +1,13 @@
-const inputs = localStorage.getItem('bustlerData') ? JSON.parse(localStorage.getItem('bustlerData')) : [];
+let inputs = [];
 
 function getPlusSymbol() {
     return "<span>&#43;</span>";
 }
 
 function updateData() {
-    localStorage.setItem('bustlerData', JSON.stringify(inputs));
-    render();
+    chrome.storage.sync.set({'bustlerData': JSON.stringify(inputs)}, () => {
+        render();
+    });
 }
 
 function getDelete(category) {
@@ -289,5 +290,8 @@ function getNewTaskContainer() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    render();
+    chrome.storage.sync.get("bustlerData", (result) => {
+        inputs = JSON.parse(result?.bustlerData || '[]');
+        render();
+    });
 });

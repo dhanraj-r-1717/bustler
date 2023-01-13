@@ -200,9 +200,8 @@ function getTasks(category) {
             }
             li.appendChild(checkbox);
     
-            const input = document.createElement("input");
-            input.setAttribute("type", "text");
-            input.setAttribute("value", task.name);
+            const input = document.createElement("textarea");
+            input.innerHTML = task.name;
             input.onkeyup = (e) => {
                 if (e.key === 'Enter' || e.keyCode === 13) {
                     const newValue = event.target.value.trim();
@@ -214,8 +213,15 @@ function getTasks(category) {
             
                     task.name = newValue;
                     updateData();
+                } else {
+                    e.target.style.height = "1px";
+                    e.target.style.height = (20 + e.target.scrollHeight)+"px";
                 }
             }
+            setTimeout(() => {
+                input.style.height = "1px";
+                input.style.height = input.scrollHeight + "px";
+            }, 100);
             li.appendChild(input);
 
             const deleteButton = document.createElement("em");

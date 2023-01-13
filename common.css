@@ -126,6 +126,7 @@ input[type="checkbox"]{
     width: 16px;
     height: 16px;
     margin-right: 8px;
+    vertical-align: top;
 }
 
 h3 {
@@ -147,11 +148,15 @@ h3 {
     font-size: 118px;
 }
 
-.task > input[type="text"]{
-    font-size: 18px;
+.task > textarea{
+    font-size: 16px;
     border: 0;
     background-color: #eaeaea;
     cursor: pointer;
+    height: 211px;
+    width: 88%;
+    padding: 0 5px;
+    resize: none;
 }
 
 .task.empty {

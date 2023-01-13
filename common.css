@@ -165,7 +165,7 @@ h3 {
     color: #8c8c8c;
 }
 
-.task.completed input[type="text"] {
+.task.completed textarea {
     text-decoration: line-through;
     cursor: text;
 }

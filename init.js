@@ -1,7 +1,92 @@
 let inputs = [];
+let containerClass = "category";
 
 function getPlusSymbol() {
     return "<span>&#43;</span>";
+}
+
+function currentTime() {
+    let date = new Date(); 
+    let hh = date.getHours();
+    let mm = date.getMinutes();
+    let ss = date.getSeconds();
+    let session = "AM";
+  
+    if(hh == 0){
+        hh = 12;
+    }
+    if(hh > 12){
+        hh = hh - 12;
+        session = "PM";
+     }
+  
+     hh = (hh < 10) ? "0" + hh : hh;
+     mm = (mm < 10) ? "0" + mm : mm;
+     ss = (ss < 10) ? "0" + ss : ss;
+      
+     let time = hh + ":" + mm + " " + session;
+  
+    document.getElementById("clock").innerHTML = time; 
+    let t = setTimeout(() => { currentTime() }, 1000 * 60);
+}
+
+function handleDrag(item) {
+    const selectedItem = item.target,
+          list = selectedItem.parentNode,
+          x = event.clientX,
+          y = event.clientY;
+    
+    selectedItem.classList.add('drag-sort-active');
+    let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y);
+    
+    if (list === swapItem.parentNode) {
+        swapItem = swapItem !== selectedItem.nextSibling ? swapItem : swapItem.nextSibling;
+        list.insertBefore(selectedItem, swapItem);
+    }
+}
+
+function handleCategoryDrop(item) {
+    item.target.classList.remove('drag-sort-active');
+
+    const sortableLists = document.getElementsByClassName(containerClass);
+    const newInput = [];
+    Array.prototype.map.call(sortableLists, (el) => {
+        const id = parseInt(el.dataset.id);
+        const category = inputs.find((ipt) => ipt && ipt.id === id);
+        newInput.push(category);
+    });
+
+    inputs = newInput;
+    updateData();
+}
+
+function handleTaskDrop(item) {
+    item.target.classList.remove('drag-sort-active');
+
+    const categoryId = parseInt(item.target.closest(".category").dataset.id);
+    const category = inputs.find((ipt) => ipt && ipt.id === categoryId);
+
+    const sortableLists = document.getElementsByClassName("task");
+    const newInput = [];
+    Array.prototype.map.call(sortableLists, (el) => {
+        const id = parseInt(el.dataset.id);
+        const task = category.tasks.find((ipt) => ipt && ipt.id === id);
+        newInput.push(task);
+    });
+
+    category.tasks = newInput;
+    updateData();
+}
+
+function enableDragItem(item, dropFunc) {
+    item.setAttribute('draggable', true)
+    item.ondrag = handleDrag;
+    item.ondragend = dropFunc;
+}
+
+function enableDragSort(containerClassName, dropFunc) {
+    const sortableLists = document.getElementsByClassName(containerClassName);
+    Array.prototype.map.call(sortableLists, (list) => {enableDragItem(list, dropFunc)});
 }
 
 function updateData() {
@@ -160,6 +245,13 @@ function getMenu(category) {
     return nav;
 }
 
+function getDragAndDropIcon(className) {
+    const div = document.createElement("div");
+    div.setAttribute("class", className);
+    div.innerHTML = "::";
+    return div;
+}
+
 function getTasks(category) {
     const {tasks, menuPreference} = category;
     let filteredTasks = tasks;
@@ -187,55 +279,78 @@ function getTasks(category) {
 
     if (filteredTasks.length) {
         filteredTasks.forEach((task) => {
-            const li = document.createElement("li");
-            li.setAttribute("class", "task " + task.status);
-    
-            const checkbox = document.createElement("input");
-            checkbox.setAttribute("type", "checkbox");
-            if (task.status === "completed") {
-                checkbox.setAttribute("checked", true);
-            }
-            checkbox.onchange = (event) => {
-                task.status = event.target.checked ? "completed" : "active";
-                updateData();
-            }
-            li.appendChild(checkbox);
-    
-            const input = document.createElement("textarea");
-            input.innerHTML = task.name;
-            input.onkeyup = (e) => {
-                if (e.key === 'Enter' || e.keyCode === 13) {
-                    const newValue = event.target.value.trim();
-                
-                    if (!newValue) {
-                        alert("Task name should not be empty");
-                        return;
-                    }
-            
-                    task.name = newValue;
-                    updateData();
-                } else {
-                    e.target.style.height = "1px";
-                    e.target.style.height = (20 + e.target.scrollHeight)+"px";
-                }
-            }
-            setTimeout(() => {
-                input.style.height = "1px";
-                input.style.height = input.scrollHeight + "px";
-            }, 100);
-            li.appendChild(input);
+            if (task) {
+                const li = document.createElement("li");
+                li.setAttribute("class", "task " + task.status);
+                li.setAttribute("data-id", task.id);
 
-            const deleteButton = document.createElement("em");
-            deleteButton.setAttribute("class", "taskDeleteButton");
-            deleteButton.innerHTML = "x";
-            deleteButton.onclick = () => {
-                const index = tasks.findIndex((tsk) => tsk.id === task.id);
-                tasks.splice(index, 1);
-                updateData();
+                li.appendChild(getDragAndDropIcon("taskDragAndDrop"));
+        
+                const checkbox = document.createElement("input");
+                checkbox.setAttribute("type", "checkbox");
+                if (task.status === "completed") {
+                    checkbox.setAttribute("checked", true);
+                }
+                checkbox.onchange = (event) => {
+                    task.status = event.target.checked ? "completed" : "active";
+                    updateData();
+                }
+
+                if (task.name.includes("https://") || task.name.includes("http://")) {
+                    const URLs = task.name.match(/https?:\/\/[\S]*/gi);
+                    if (URLs && URLs.length) {
+                        const URL = URLs[0];
+                        if (URL) {
+                            const newTabIcon = document.createElement("div");
+                            newTabIcon.setAttribute("class", "newTabIcon");
+                            newTabIcon.setAttribute("title", "Go to " + URL);
+                            newTabIcon.onclick = () => {
+                                window.open(URL);
+                            }
+                            newTabIcon.innerHTML = "&#8599;";
+                            li.appendChild(newTabIcon);
+                        }
+                    }
+                }
+
+                li.appendChild(checkbox);
+        
+                const input = document.createElement("textarea");
+                input.innerHTML = task.name;
+                input.onkeyup = (e) => {
+                    if (e.key === 'Enter' || e.keyCode === 13) {
+                        const newValue = event.target.value.trim();
+                    
+                        if (!newValue) {
+                            alert("Task name should not be empty");
+                            return;
+                        }
+                
+                        task.name = newValue;
+                        updateData();
+                    } else {
+                        e.target.style.height = "1px";
+                        e.target.style.height = (20 + e.target.scrollHeight)+"px";
+                    }
+                }
+                setTimeout(() => {
+                    input.style.height = "1px";
+                    input.style.height = input.scrollHeight + "px";
+                }, 100);
+                li.appendChild(input);
+
+                const deleteButton = document.createElement("em");
+                deleteButton.setAttribute("class", "taskDeleteButton");
+                deleteButton.innerHTML = "x";
+                deleteButton.onclick = () => {
+                    const index = tasks.findIndex((tsk) => tsk.id === task.id);
+                    tasks.splice(index, 1);
+                    updateData();
+                }
+                li.appendChild(deleteButton);
+                
+                ul.appendChild(li);
             }
-            li.appendChild(deleteButton);
-            
-            ul.appendChild(li);
         });
     } else {
         const li = document.createElement("li");
@@ -255,19 +370,24 @@ function render() {
     container.innerHTML = "";
     if (inputs && inputs.length) {
         inputs.forEach((input) => {
-            const div = document.createElement("div");
-            div.setAttribute("class", "category");
-            div.setAttribute("data-id", input.id);
-            div.appendChild(getTitle(input));
-            div.appendChild(getDelete(input));
-            div.appendChild(getNewTaskInput(input));
-            div.appendChild(getNewTaskButton(input));
-            div.appendChild(getMenu(input));
-            div.appendChild(getTasks(input));
-            container.appendChild(div);
+            if (input) {
+                const div = document.createElement("div");
+                div.setAttribute("class", containerClass);
+                div.setAttribute("data-id", input.id);
+                div.appendChild(getDragAndDropIcon("dragAndDrop"));
+                div.appendChild(getTitle(input));
+                div.appendChild(getDelete(input));
+                div.appendChild(getNewTaskInput(input));
+                div.appendChild(getNewTaskButton(input));
+                div.appendChild(getMenu(input));
+                div.appendChild(getTasks(input));
+                container.appendChild(div);
+            }
         })
     }
     container.appendChild(getNewTaskContainer());
+    enableDragSort(containerClass, handleCategoryDrop);
+    enableDragSort("task", handleTaskDrop);
 }
 
 function getNewTaskContainer() {
@@ -293,5 +413,6 @@ document.addEventListener("DOMContentLoaded", () => {
     chrome.storage.sync.get("bustlerData", (result) => {
         inputs = JSON.parse(result?.bustlerData || '[]');
         render();
+        currentTime();
     });
 });

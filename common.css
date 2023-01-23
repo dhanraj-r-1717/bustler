@@ -117,7 +117,7 @@ a:hover::before, a:focus::before, a.active::before {
     font-size: 20px;
     margin: 15px 24px;
     display: block;
-    padding: 5px 13px;
+    padding: 5px 19px;
     background-color: #eaeaea;
     position: relative;
 }
@@ -127,6 +127,7 @@ input[type="checkbox"]{
     height: 16px;
     margin-right: 8px;
     vertical-align: top;
+    cursor: pointer;
 }
 
 h3 {
@@ -157,6 +158,7 @@ h3 {
     width: 88%;
     padding: 0 5px;
     resize: none;
+    cursor: text;
 }
 
 .task.empty {
@@ -183,5 +185,41 @@ h3 {
     position: absolute;
     right: 8px;
     top: 1px;
+    cursor: pointer;
+}
+
+.clock {
+    position: absolute;
+    right: 21px;
+    top: 17px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.category.drag-sort-active {
+    background: transparent;
+    color: transparent;
+    border: 1px solid #4ca1af;
+}
+
+.dragAndDrop {
+    position: absolute;
+    font-size: 16px;
+    padding-left: 8px;
+    cursor: all-scroll;
+}
+
+.taskDragAndDrop {
+    font-size: 14px;
+    position: absolute;
+    left: 5px;
+    top: 4px;
+    cursor: all-scroll;
+}
+
+.newTabIcon {
+    position: absolute;
+    right: -18px;
+    font-size: 18px;
     cursor: pointer;
 }

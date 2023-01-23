@@ -313,6 +313,7 @@ function getTasks(category) {
                     }
                 }
 
+                li.setAttribute("title", `Added on ${new Date(task.id)}`);
                 li.appendChild(checkbox);
         
                 const input = document.createElement("textarea");

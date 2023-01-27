@@ -1,33 +1,47 @@
+const chromeDataName = "bustlerData";
+let preference = {};
 let inputs = [];
 let containerClass = "category";
+
+function updateData() {
+    const bustlerData = {
+        inputs,
+        preference
+    }
+    chrome.storage.sync.set({[chromeDataName]: JSON.stringify(bustlerData)}, () => {
+        render();
+    });
+}
 
 function getPlusSymbol() {
     return "<span>&#43;</span>";
 }
 
 function currentTime() {
-    let date = new Date(); 
-    let hh = date.getHours();
-    let mm = date.getMinutes();
-    let ss = date.getSeconds();
-    let session = "AM";
-  
-    if(hh == 0){
-        hh = 12;
-    }
-    if(hh > 12){
-        hh = hh - 12;
-        session = "PM";
-     }
-  
-     hh = (hh < 10) ? "0" + hh : hh;
-     mm = (mm < 10) ? "0" + mm : mm;
-     ss = (ss < 10) ? "0" + ss : ss;
+    if (preference.showDateAndTime) {
+        let date = new Date(); 
+        let hh = date.getHours();
+        let mm = date.getMinutes();
+        let ss = date.getSeconds();
+        let session = "AM";
       
-     let time = hh + ":" + mm + " " + session;
-  
-    document.getElementById("clock").innerHTML = time; 
-    let t = setTimeout(() => { currentTime() }, 1000 * 60);
+        if(hh == 0){
+            hh = 12;
+        }
+        if(hh > 12){
+            hh = hh - 12;
+            session = "PM";
+         }
+      
+         hh = (hh < 10) ? "0" + hh : hh;
+         mm = (mm < 10) ? "0" + mm : mm;
+         ss = (ss < 10) ? "0" + ss : ss;
+          
+        let weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
+        var dt = new Date();
+        document.getElementById("clock").innerHTML = `${weekday}, ${dt.getDate()}-${dt.getMonth() + 1}-${dt.getFullYear()} ${hh}:${mm}`; 
+        let t = setTimeout(() => { currentTime() }, 1000 * 60);
+    }
 }
 
 function handleDrag(item) {
@@ -87,12 +101,6 @@ function enableDragItem(item, dropFunc) {
 function enableDragSort(containerClassName, dropFunc) {
     const sortableLists = document.getElementsByClassName(containerClassName);
     Array.prototype.map.call(sortableLists, (list) => {enableDragItem(list, dropFunc)});
-}
-
-function updateData() {
-    chrome.storage.sync.set({'bustlerData': JSON.stringify(inputs)}, () => {
-        render();
-    });
 }
 
 function getDelete(category) {
@@ -410,10 +418,39 @@ function getNewTaskContainer() {
     return newDom;
 }
 
+async function randomQuote() {
+    try {
+        const response = await fetch("https://api.quotable.io/random");
+        const newData = await response.json();
+        document.getElementById("quote").innerHTML = `${newData.content} - ${newData.author}`;
+    } catch (e) {}
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    chrome.storage.sync.get("bustlerData", (result) => {
-        inputs = JSON.parse(result?.bustlerData || '[]');
+    const defaultBustlerData = {
+        preference: {
+            bgColor: "#c8e4ff",
+            darkMode: false,
+            showDateAndTime: true
+        },
+        inputs: []
+    }
+
+    chrome.storage.sync.get(chromeDataName, (result) => {
+        let storedData = JSON.parse(result?.bustlerData || '{}');
+        storedData = {
+            inputs: storedData.inputs || defaultBustlerData.inputs,
+            preference: {
+                ...defaultBustlerData.preference,
+                ...(storedData.preference || {})
+            }
+        };
+
+        inputs = storedData.inputs || [];
+        preference = storedData.preference || {};
+        document.body.style.backgroundColor = preference.bgColor;
         render();
         currentTime();
+        randomQuote();
     });
 });

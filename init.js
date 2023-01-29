@@ -77,10 +77,11 @@ function handleCategoryDrop(item) {
 function handleTaskDrop(item) {
     item.target.classList.remove('drag-sort-active');
 
-    const categoryId = parseInt(item.target.closest(".category").dataset.id);
+    const categoryEl = item.target.closest(".category");
+    const categoryId = parseInt(categoryEl.dataset.id);
     const category = inputs.find((ipt) => ipt && ipt.id === categoryId);
 
-    const sortableLists = document.getElementsByClassName("task");
+    const sortableLists = categoryEl.getElementsByClassName("task");
     const newInput = [];
     Array.prototype.map.call(sortableLists, (el) => {
         const id = parseInt(el.dataset.id);
@@ -266,11 +267,13 @@ function getTasks(category) {
 
     if (menuPreference !== "all") {
         filteredTasks = filteredTasks.filter((task) => {
-            if (menuPreference === "active" && task.status === "active") {
-                return true;
-            }
-            if (menuPreference === "completed" && task.status === "completed") {
-                return true;
+            if (task) {
+                if (menuPreference === "active" && task.status === "active") {
+                    return true;
+                }
+                if (menuPreference === "completed" && task.status === "completed") {
+                    return true;
+                }
             }
             return false;
         });
@@ -374,7 +377,7 @@ function getTasks(category) {
     return div;
 }
 
-function render() {
+function construct() {
     const container = document.getElementById("taskContainer");
     container.innerHTML = "";
     if (inputs && inputs.length) {
@@ -426,12 +429,35 @@ async function randomQuote() {
     } catch (e) {}
 }
 
+function setColor() {
+    const colorEl = document.getElementById("colorPicker");
+    colorEl.value = preference.bgColor;
+    colorEl.addEventListener("change", () => {
+        document.body.style.backgroundColor = colorEl.value;
+        preference.bgColor = colorEl.value;
+        updateData();
+    }, false);
+    colorEl.addEventListener("input", () => {
+        document.body.style.backgroundColor = colorEl.value;        
+    }, false);
+}
+
+function render() {
+    document.body.style.backgroundColor = preference.bgColor;
+    construct();
+    currentTime();
+    setColor();
+    randomQuote();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const defaultBustlerData = {
         preference: {
+            name: null,
             bgColor: "#c8e4ff",
             darkMode: false,
-            showDateAndTime: true
+            showDateAndTime: true,
+            fontSize: 12
         },
         inputs: []
     }
@@ -448,9 +474,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
         inputs = storedData.inputs || [];
         preference = storedData.preference || {};
-        document.body.style.backgroundColor = preference.bgColor;
-        render();
-        currentTime();
-        randomQuote();
+
+        const titleEl = document.getElementById("title");
+        if (preference.name === null) {
+            let bossName = prompt("Please enter your name.");
+            if (bossName) {
+                preference.name = bossName;
+                titleEl.innerHTML = `Hi ${bossName}!`;
+                updateData();
+                render();
+            } else {
+                titleEl.innerHTML = "Hi Bustler!";
+                render();
+            }
+        } else {
+            titleEl.innerHTML = `Hi ${preference.name}!`;
+            render();
+        }
     });
 });

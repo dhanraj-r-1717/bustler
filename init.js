@@ -9,7 +9,7 @@ function updateData() {
         preference
     }
     chrome.storage.sync.set({[chromeDataName]: JSON.stringify(bustlerData)}, () => {
-        render();
+        construct();
     });
 }
 
@@ -169,9 +169,9 @@ function getNewTaskButton(category) {
     input.setAttribute("type", "button");
     input.setAttribute("class", "newTaskButton");
     input.setAttribute("value", "Add");
-    input.onclick = (event) => {
-        const newValue = event.target.value.trim();
-        
+    input.onclick = () => {
+        const newValue = document.getElementById("newTaskText" + category.id).value.trim();
+
         if (!newValue) {
             alert("Category name should not be empty");
             return;
@@ -432,21 +432,48 @@ async function randomQuote() {
 function setColor() {
     const colorEl = document.getElementById("colorPicker");
     colorEl.value = preference.bgColor;
-    colorEl.addEventListener("change", () => {
-        document.body.style.backgroundColor = colorEl.value;
-        preference.bgColor = colorEl.value;
+    if (preference.darkMode) {
+        colorEl.addEventListener("click", () => {
+            alert("Not supported in dark mode");
+        }, false);
+    } else {
+        document.body.style.backgroundColor = preference.bgColor;
+        colorEl.addEventListener("change", () => {
+            document.body.style.backgroundColor = colorEl.value;
+            preference.bgColor = colorEl.value;
+            updateData();
+        }, false);
+        colorEl.addEventListener("input", () => {
+            document.body.style.backgroundColor = colorEl.value;        
+        }, false);
+    }
+}
+
+function setDarkMode() {
+    const darkModeEl = document.getElementById("darkModeCheckBox");
+    darkModeEl.checked = preference.darkMode;
+    darkModeEl.addEventListener("change", () => {
+        if (darkModeEl.checked) {
+            document.body.classList.add("dark");
+            preference.darkMode = true;
+            document.body.style.backgroundColor = "#18191b";
+        } else {
+            document.body.classList.remove("dark");
+            preference.darkMode = false;
+            document.body.style.backgroundColor = preference.bgColor;
+        }
         updateData();
     }, false);
-    colorEl.addEventListener("input", () => {
-        document.body.style.backgroundColor = colorEl.value;        
-    }, false);
+    if (preference.darkMode) {
+        document.body.classList.add("dark");
+    }
 }
 
 function render() {
-    document.body.style.backgroundColor = preference.bgColor;
     construct();
     currentTime();
     setColor();
+    setDarkMode();
     randomQuote();
 }
 

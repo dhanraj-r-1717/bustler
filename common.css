@@ -2,6 +2,20 @@
     padding: 0;
     margin: 0;
 }
+
+.dark {
+    color: #fff !important;
+    background-color: #18191b !important;
+}
+
+.dark .flex-container > div {background-color: #18191b !important; box-shadow: 9px 6px 15px #373737 !important; border: 1px solid #fff;}
+.dark input {color: #fff !important;background-color: #18191b !important;}
+.dark .newTaskButton {background-color: #dadada !important; color: #000 !important;}
+.dark textarea {color: #fff !important;background-color: #2a2a2a !important;}
+.dark .task {color: #fff !important;background-color: #2a2a2a !important;}
+.dark a {color: #fff !important}
+.dark a::before{background-color: #fff !important;}
+
 .flex-container {
     display: flex;
     flex-wrap: wrap;
@@ -239,4 +253,10 @@ h3 {
 #colorPicker {
     width: 24px;
     cursor: pointer;
+}
+
+.darkModeWrapper {
+    position: absolute;
+    right: 47px;
+    top: 17px;
 }

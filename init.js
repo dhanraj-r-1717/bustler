@@ -434,7 +434,7 @@ function setColor() {
     colorEl.value = preference.bgColor;
     if (preference.darkMode) {
         colorEl.addEventListener("click", () => {
-            alert("Not supported in dark mode");
+            alert("Not supported in black theme");
         }, false);
     } else {
         document.body.style.backgroundColor = preference.bgColor;

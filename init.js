@@ -2,7 +2,7 @@ const chromeDataName = "bustlerData";
 let preference = {};
 let inputs = [];
 let containerClass = "category";
-
+let timer = null;
 function updateData() {
     const bustlerData = {
         inputs,
@@ -13,10 +13,6 @@ function updateData() {
     });
 }
 
-function getPlusSymbol() {
-    return "<span>&#43;</span>";
-}
-
 function currentTime() {
     if (preference.showDateAndTime) {
         let date = new Date(); 
@@ -24,6 +20,15 @@ function currentTime() {
         let mm = date.getMinutes();
         let ss = date.getSeconds();
         let session = "AM";
+
+        let title = "Good Morning";
+        if (hh >= 0 && hh <= 4) {
+            title = "Good Night";
+        } else if (hh >= 12 && hh <= 16) {
+            title = "Good Afternoon";
+        } else if (hh >= 17 && hh <= 21) {
+            title = "Good Evening";
+        }
       
         if(hh == 0){
             hh = 12;
@@ -40,7 +45,36 @@ function currentTime() {
         let weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
         var dt = new Date();
         document.getElementById("clock").innerHTML = `${weekday}, ${dt.getDate()}-${dt.getMonth() + 1}-${dt.getFullYear()} ${hh}:${mm}`; 
-        let t = setTimeout(() => { currentTime() }, 1000 * 60);
+
+
+        document.getElementById("title").innerHTML = title;
+        if (preference.name) {
+            const input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("class", "titleTextBox");
+            input.setAttribute("value", preference.name);
+            input.setAttribute("style", `width: ${Math.round(preference.name.length * 21)}px`)
+            input.onkeyup = (e) => {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    const newValue = input.value.trim();
+
+                    if (!newValue) {
+                        alert("Category name should not be empty");
+                        return;
+                    }
+
+                    preference.name = newValue;
+                    updateData();
+                    currentTime();
+                }
+            }
+            document.getElementById("title").appendChild(input);
+        }
+
+        if (timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(() => { currentTime() }, 1000 * 60);
     }
 }
 
@@ -404,20 +438,31 @@ function construct() {
 
 function getNewTaskContainer() {
     const newDom = document.createElement("div");
-    newDom.innerHTML = getPlusSymbol();
     newDom.setAttribute("class", "new");
-    newDom.onclick = () => {
-        let newTaskName = prompt("Please enter the task category name");
-        if (newTaskName) {
+
+    const input = document.createElement("input");
+    input.setAttribute("type", "text");
+    input.setAttribute("class", "newCategoryTextBox");
+    input.setAttribute("placeholder", "Enter new category name");
+    input.onkeyup = (e) => {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+            const newValue = input.value.trim();
+
+            if (!newValue) {
+                alert("Category name should not be empty");
+                return;
+            }
+
             inputs.push({
                 id: new Date().getTime(),
-                title: newTaskName,
+                title: newValue,
                 tasks: [],
                 menuPreference: "all"
             });
             updateData();
         }
     }
+    newDom.appendChild(input);
     return newDom;
 }
 
@@ -507,15 +552,12 @@ document.addEventListener("DOMContentLoaded", () => {
             let bossName = prompt("Please enter your name.");
             if (bossName) {
                 preference.name = bossName;
-                titleEl.innerHTML = `Hi ${bossName}!`;
                 updateData();
                 render();
             } else {
-                titleEl.innerHTML = "Hi Bustler!";
                 render();
             }
         } else {
-            titleEl.innerHTML = `Hi ${preference.name}!`;
             render();
         }
     });

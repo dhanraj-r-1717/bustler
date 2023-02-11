@@ -2,7 +2,6 @@
 <head>
   <meta charset="utf-8">
   <title>Bustler</title>
-  <meta name="description" content="Fancy description...">
   <link rel="stylesheet" href="common.css">
   <link rel="icon" type="image/x-icon" href="bustler-logo.png">
 </head>
@@ -11,12 +10,14 @@
     <h3 id="title"></h3>
     <div class="quote" id="quote"></div>
     <div class="clock" id="clock">&nbsp;</div>
-    <div class="darkModeWrapper">
-      <span>Black Theme</span>
-      <input type="checkbox" id="darkModeCheckBox" />
-    </div>
-    <div class="bgColorPicker">
-        <input type="color" id="colorPicker" value="#fff" title="Change to preferred color">
+    <div class="rightTop">
+      <div class="darkModeWrapper">
+        <span>Black Theme</span>
+        <input type="checkbox" id="darkModeCheckBox" />
+      </div>
+      <div class="bgColorPicker">
+          <input type="color" id="colorPicker" value="#fff" title="Change to preferred color">
+      </div>
     </div>
     <div class="flex-container" id="taskContainer" />
     <script src="init.js"></script>

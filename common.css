@@ -24,8 +24,6 @@
 .flex-container > div {
     background-color: #fff;
     width: 31%;
-    height: 400px;
-    overflow-y: scroll;
     margin: 10px;
     text-align: center;
     font-size: 30px;
@@ -36,13 +34,13 @@
 
 .newTaskText {
     width: 70%;
-    height: 35px;
-    font-size: 18px;
+    height: 25px;
+    font-size: 14px;
     padding-left: 5px;
 }
 
 .newTaskButton {
-    padding: 5px 20px;
+    padding: 1px 20px;
     box-shadow: 0px 0px 12px -2px rgb(0 0 0 / 50%);
     line-height: 1.25;
     background: DodgerBlue;
@@ -62,7 +60,6 @@ ol, ul {
 }
 li {
     display: inline-block;
-    padding: 8px 0 0px;
     vertical-align: middle;
 }
 a:hover, a:focus {
@@ -109,7 +106,7 @@ a:hover::before, a:focus::before, a.active::before {
 }
 
 .title {
-    font-size: 24px;
+    font-size: 16px;
     text-align: center;
     border: 0;
     margin: 10px 0;
@@ -121,10 +118,11 @@ a:hover::before, a:focus::before, a.active::before {
 
 .taskContainer {
     text-align: left;
+    overflow-y: scroll;
+    height: 300px;
 }
 
 .task {
-    padding: 0;
     display: block;
     font-size: 20px;
     margin: 15px 24px;
@@ -132,6 +130,10 @@ a:hover::before, a:focus::before, a.active::before {
     padding: 5px 19px;
     background-color: #eaeaea;
     position: relative;
+}
+
+.task:first-child {
+    margin: 5px 24px 15px 24px;
 }
 
 input[type="checkbox"]{
@@ -149,9 +151,11 @@ h3 {
     font-size: 28px;
     padding-top: 8px;
     text-transform: capitalize;
+    font-family: courier;
 }
 
 .new {
+    height: 406px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -244,9 +248,7 @@ h3 {
 }
 
 .bgColorPicker {
-    position: absolute;
-    right: 9px;
-    top: 10px;
+    display: inline-block;
     font-weight: bold;
 }
 
@@ -256,7 +258,27 @@ h3 {
 }
 
 .darkModeWrapper {
+    display: inline-block;
+    vertical-align: super;
+}
+
+.rightTop {
     position: absolute;
-    right: 47px;
-    top: 17px;
+    right: 7px;
+    top: 11px;
+}
+
+.titleTextBox {
+    font-size: 28px;
+    font-weight: bold;
+    border: none;
+    padding-left: 12px;
+    font-family: courier;
+}
+
+.newCategoryTextBox {
+    width: 80%;
+    text-align: center;
+    font-size: 18px;
+    border: none;
 }

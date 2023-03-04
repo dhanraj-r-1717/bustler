@@ -78,66 +78,6 @@ function currentTime() {
     }
 }
 
-function handleDrag(item) {
-    const selectedItem = item.target,
-          list = selectedItem.parentNode,
-          x = event.clientX,
-          y = event.clientY;
-    
-    selectedItem.classList.add('drag-sort-active');
-    let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y);
-    
-    if (list === swapItem.parentNode) {
-        swapItem = swapItem !== selectedItem.nextSibling ? swapItem : swapItem.nextSibling;
-        list.insertBefore(selectedItem, swapItem);
-    }
-}
-
-function handleCategoryDrop(item) {
-    item.target.classList.remove('drag-sort-active');
-
-    const sortableLists = document.getElementsByClassName(containerClass);
-    const newInput = [];
-    Array.prototype.map.call(sortableLists, (el) => {
-        const id = parseInt(el.dataset.id);
-        const category = inputs.find((ipt) => ipt && ipt.id === id);
-        newInput.push(category);
-    });
-
-    inputs = newInput;
-    updateData();
-}
-
-function handleTaskDrop(item) {
-    item.target.classList.remove('drag-sort-active');
-
-    const categoryEl = item.target.closest(".category");
-    const categoryId = parseInt(categoryEl.dataset.id);
-    const category = inputs.find((ipt) => ipt && ipt.id === categoryId);
-
-    const sortableLists = categoryEl.getElementsByClassName("task");
-    const newInput = [];
-    Array.prototype.map.call(sortableLists, (el) => {
-        const id = parseInt(el.dataset.id);
-        const task = category.tasks.find((ipt) => ipt && ipt.id === id);
-        newInput.push(task);
-    });
-
-    category.tasks = newInput;
-    updateData();
-}
-
-function enableDragItem(item, dropFunc) {
-    item.setAttribute('draggable', true)
-    item.ondrag = handleDrag;
-    item.ondragend = dropFunc;
-}
-
-function enableDragSort(containerClassName, dropFunc) {
-    const sortableLists = document.getElementsByClassName(containerClassName);
-    Array.prototype.map.call(sortableLists, (list) => {enableDragItem(list, dropFunc)});
-}
-
 function getDelete(category) {
     const deleteButton = document.createElement("em");
     deleteButton.setAttribute("class", "deleteButton");
@@ -221,8 +161,79 @@ function getNewTaskButton(category) {
     return input;
 }
 
+function sortAscString(a, b) {
+    if (a.name < b.name) {
+        return -1;
+    }
+    if (a.name > b.name) {
+        return 1;
+    }
+    return 0;
+}
+
+function sortDescString(a, b) {
+    if (a.name > b.name) {
+        return -1;
+    }
+    if (a.name < b.name) {
+        return 1;
+    }
+    return 0;
+}
+
+function sort(filteredTasks) {
+    if (preference.sorting === "timeAsc") {
+        return filteredTasks.sort(function(a, b){return a.id - b.id});
+    }
+    if (preference.sorting === "timeDesc") {
+        return filteredTasks.sort(function(a, b){return b.id - a.id});
+    }
+    if (preference.sorting === "nameAsc") {
+        return filteredTasks.sort(sortAscString);
+    }
+    if (preference.sorting === "nameDesc") {
+        return filteredTasks.sort(sortDescString);
+    }
+    return filteredTasks;
+}
+
+function getFilteredTasks(category, preference, sorting = true) {
+    let { tasks, menuPreference } = category;
+    
+    let filteredTasks = [];
+    if (tasks.length) {
+        if (preference) {
+            menuPreference = preference;
+        }
+
+        filteredTasks = tasks || [];
+        if (menuPreference !== "all") {
+            filteredTasks = filteredTasks.filter((task) => {
+                if (task) {
+                    if (menuPreference === "active" && task.status === "active") {
+                        return true;
+                    }
+                    if (menuPreference === "completed" && task.status === "completed") {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+    }
+
+    if (sorting) {
+        return sort(filteredTasks);
+    }
+
+    return filteredTasks;
+}
+
 function getMenu(category) {
     const { menuPreference } = category;
+    const allLen = getFilteredTasks(category, "all", false).length;
+    const activeLen = getFilteredTasks(category, "active", false).length;
+    const completedLen = getFilteredTasks(category, "completed", false).length;
 
     const nav = document.createElement("nav");
     const ul = document.createElement("ul");
@@ -238,7 +249,12 @@ function getMenu(category) {
             updateData();
         }
     }
-    a.innerHTML = "All";
+    if (allLen) {
+        a.innerHTML = "All<span class='menuTaskCount'>("+allLen+")</span>";
+    } else {
+        a.innerHTML = "All";
+    }
+    
     if (menuPreference === "all") {
         a.setAttribute("class", "item active");
     }
@@ -257,7 +273,11 @@ function getMenu(category) {
             updateData();
         }
     }
-    a.innerHTML = "Active";
+    if (activeLen) {
+        a.innerHTML = "Active<span class='menuTaskCount'>("+activeLen+")</span>";
+    } else {
+        a.innerHTML = "Active";
+    }
     if (menuPreference === "active") {
         a.setAttribute("class", "item active");
     }
@@ -276,7 +296,11 @@ function getMenu(category) {
             updateData();
         }
     }
-    a.innerHTML = "Completed";
+    if (completedLen) {
+        a.innerHTML = "Completed<span class='menuTaskCount'>("+completedLen+")</span>";
+    } else {
+        a.innerHTML = "Completed";
+    }
     if (menuPreference === "completed") {
         a.setAttribute("class", "item active");
     }
@@ -296,22 +320,7 @@ function getDragAndDropIcon(className) {
 }
 
 function getTasks(category) {
-    const {tasks, menuPreference} = category;
-    let filteredTasks = tasks;
-
-    if (menuPreference !== "all") {
-        filteredTasks = filteredTasks.filter((task) => {
-            if (task) {
-                if (menuPreference === "active" && task.status === "active") {
-                    return true;
-                }
-                if (menuPreference === "completed" && task.status === "completed") {
-                    return true;
-                }
-            }
-            return false;
-        });
-    }
+    const tasks = getFilteredTasks(category);
 
     const div = document.createElement("div");
     div.setAttribute("class", "menuContent");
@@ -322,14 +331,16 @@ function getTasks(category) {
     const ul = document.createElement("ul");
     ul.setAttribute("class", "taskContainer");
 
-    if (filteredTasks.length) {
-        filteredTasks.forEach((task) => {
+    if (tasks.length) {
+        tasks.forEach((task) => {
             if (task) {
                 const li = document.createElement("li");
                 li.setAttribute("class", "task " + task.status);
                 li.setAttribute("data-id", task.id);
 
-                li.appendChild(getDragAndDropIcon("taskDragAndDrop"));
+                if ((!category.menuPreference || category.menuPreference === "all") && preference.sorting === "own") {
+                    li.appendChild(getDragAndDropIcon("taskDragAndDrop"));
+                }
         
                 const checkbox = document.createElement("input");
                 checkbox.setAttribute("type", "checkbox");
@@ -394,7 +405,30 @@ function getTasks(category) {
                     updateData();
                 }
                 li.appendChild(deleteButton);
-                
+
+                if (category.menuPreference === "all" && preference.sorting === "own") {
+                    li.setAttribute('draggable', true);
+                    li.ondragstart= (event) => {
+                        event.stopPropagation();
+                        event.dataTransfer.setData("id", `${category.id}=${task.id}`);
+                        li.classList.add('drag-sort-active');
+                    }
+                    li.ondrag = (event) => {
+                        event.stopPropagation();
+                        const x = event.clientX, y = event.clientY;
+                        let targetEl = document.elementFromPoint(x, y);
+                        if (targetEl && ul === targetEl.parentNode && targetEl.classList.contains("task")) {
+                            let swapItem = targetEl === null ? li : targetEl;
+                            swapItem = swapItem !== li.nextSibling ? swapItem : swapItem.nextSibling;
+                            ul.insertBefore(li, swapItem);
+                        }
+                    };
+    
+                    li.ondragend = () => {
+                        li.classList.remove('drag-sort-active');
+                    };
+                    
+                }
                 ul.appendChild(li);
             }
         });
@@ -404,6 +438,41 @@ function getTasks(category) {
         li.innerHTML = "No task available"
         ul.appendChild(li);
     }
+
+    ul.ondragover=(event) => {
+        event.preventDefault();
+        ul.classList.add("itemDrop");
+    }
+    ul.ondragleave = () => {
+        ul.classList.remove("itemDrop");
+    }
+    ul.ondrop = (event) => {
+        event.preventDefault();
+        let id = event.dataTransfer.getData("id");
+        if (id) {
+            let categoryId = parseInt(id.split("=")[0]);
+            
+            if (categoryId === category.id) {
+                const categoryEl = event.target.closest(".category");
+                const sortableLists = categoryEl.getElementsByClassName("task");
+                const newInput = [];
+                Array.prototype.map.call(sortableLists, (el) => {
+                    const id = parseInt(el.dataset.id);
+                    const task = category.tasks.find((ipt) => ipt && ipt.id === id);
+                    newInput.push(task);
+                });
+            
+                category.tasks = newInput;
+            } else {
+                const fromCategory = inputs.find((ipt) => ipt && ipt.id === categoryId);
+                let taskId = parseInt(id.split("=")[1]);
+                const taskIndex = fromCategory.tasks.findIndex((task) => task && task.id === taskId);
+                category.tasks.push(fromCategory.tasks[taskIndex]);
+                fromCategory.tasks.splice(taskIndex, 1);
+            }
+            updateData();
+        }
+    };
 
     div1.appendChild(ul);
     div.appendChild(div1);
@@ -420,6 +489,33 @@ function construct() {
                 const div = document.createElement("div");
                 div.setAttribute("class", containerClass);
                 div.setAttribute("data-id", input.id);
+                div.setAttribute('draggable', true);
+                div.ondrag = (event) => {
+                    const list = div.parentNode,
+                        x = event.clientX,
+                        y = event.clientY;
+                    
+                        div.classList.add('drag-sort-active');
+                    let swapItem = document.elementFromPoint(x, y) === null ? div : document.elementFromPoint(x, y);
+                    
+                    if (list === swapItem.parentNode) {
+                        swapItem = swapItem !== div.nextSibling ? swapItem : swapItem.nextSibling;
+                        list.insertBefore(div, swapItem);
+                    }
+                };
+                div.ondragend = () => {
+                    div.classList.remove('drag-sort-active');
+                    const sortableLists = document.getElementsByClassName(containerClass);
+                    const newInput = [];
+                    Array.prototype.map.call(sortableLists, (el) => {
+                        const id = parseInt(el.dataset.id);
+                        const category = inputs.find((ipt) => ipt && ipt.id === id);
+                        newInput.push(category);
+                    });
+
+                    inputs = newInput;
+                    updateData();
+                };
                 div.appendChild(getDragAndDropIcon("dragAndDrop"));
                 div.appendChild(getTitle(input));
                 div.appendChild(getDelete(input));
@@ -432,8 +528,6 @@ function construct() {
         })
     }
     container.appendChild(getNewTaskContainer());
-    enableDragSort(containerClass, handleCategoryDrop);
-    enableDragSort("task", handleTaskDrop);
 }
 
 function getNewTaskContainer() {
@@ -514,12 +608,22 @@ function setDarkMode() {
     }
 }
 
+function renderSort() {
+    const sortSelectEl = document.getElementById("sortSelect");
+    sortSelectEl.value = preference.sorting;
+    sortSelectEl.onchange=() => {
+        preference.sorting = sortSelectEl.value;
+        updateData();
+    }
+}
+
 function render() {
     construct();
     currentTime();
     setColor();
     setDarkMode();
     randomQuote();
+    renderSort();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -529,7 +633,8 @@ document.addEventListener("DOMContentLoaded", () => {
             bgColor: "#c8e4ff",
             darkMode: false,
             showDateAndTime: true,
-            fontSize: 12
+            fontSize: 12,
+            sorting: "own"
         },
         inputs: []
     }
@@ -547,7 +652,6 @@ document.addEventListener("DOMContentLoaded", () => {
         inputs = storedData.inputs || [];
         preference = storedData.preference || {};
 
-        const titleEl = document.getElementById("title");
         if (preference.name === null) {
             let bossName = prompt("Please enter your name.");
             if (bossName) {

@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Bustler",
     "description": "A new tab page to remind you of your priorities",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "chrome_url_overrides": {
         "newtab": "index.html"
     },

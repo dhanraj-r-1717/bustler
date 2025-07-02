@@ -746,6 +746,39 @@ function initializeSearch() {
     document.getElementById('clearSearchBtn').addEventListener('click', () => {
         clearSearch();
     });
+    
+    // Mobile panel toggle
+    initializePanelToggle();
+}
+
+function initializePanelToggle() {
+    const panelToggle = document.getElementById('panelToggle');
+    const rightPanel = document.getElementById('rightPanel');
+    
+    if (panelToggle) {
+        panelToggle.addEventListener('click', () => {
+            rightPanel.classList.toggle('open');
+        });
+    }
+    
+    // Close panel when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 1024) {
+            const isClickInsidePanel = rightPanel.contains(e.target);
+            const isClickOnToggle = panelToggle.contains(e.target);
+            
+            if (!isClickInsidePanel && !isClickOnToggle && rightPanel.classList.contains('open')) {
+                rightPanel.classList.remove('open');
+            }
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1024) {
+            rightPanel.classList.remove('open');
+        }
+    });
 }
 
 function performContentSearch() {

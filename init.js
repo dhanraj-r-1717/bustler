@@ -3,6 +3,45 @@ let preference = {};
 let inputs = [];
 let containerClass = "category";
 let timer = null;
+
+// Storage monitoring constants and functions
+const SYNC_QUOTA_BYTES = 102400; // Chrome sync storage quota
+
+function updateStorageDisplay() {
+    chrome.storage.sync.getBytesInUse(null, (bytesInUse) => {
+        const percentage = (bytesInUse / SYNC_QUOTA_BYTES) * 100;
+        const storageText = document.getElementById("storageText");
+        const storageUsed = document.getElementById("storageUsed");
+        const storageIndicator = document.getElementById("storageIndicator");
+        
+        if (storageText && storageUsed && storageIndicator) {
+            // Format bytes to human readable
+            const formatBytes = (bytes) => {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            };
+            
+            // Update text
+            storageText.textContent = `Storage: ${formatBytes(bytesInUse)} / ${formatBytes(SYNC_QUOTA_BYTES)}`;
+            
+            // Update progress bar
+            storageUsed.style.width = `${Math.min(percentage, 100)}%`;
+            
+            // Update warning classes
+            storageIndicator.classList.remove('warning', 'critical');
+            if (percentage >= 90) {
+                storageIndicator.classList.add('critical');
+            } else if (percentage >= 75) {
+                storageIndicator.classList.add('warning');
+            }
+            
+            // Update tooltip
+            storageIndicator.title = `Chrome Sync Storage Usage: ${percentage.toFixed(1)}% (${formatBytes(bytesInUse)} of ${formatBytes(SYNC_QUOTA_BYTES)})`;
+        }
+    });
+}
+
 function updateData() {
     const bustlerData = {
         inputs,
@@ -10,6 +49,7 @@ function updateData() {
     }
     chrome.storage.sync.set({[chromeDataName]: JSON.stringify(bustlerData)}, () => {
         construct();
+        updateStorageDisplay(); // Update storage display when data changes
     });
 }
 
@@ -624,6 +664,7 @@ function render() {
     setDarkMode();
     randomQuote();
     renderSort();
+    updateStorageDisplay(); // Initialize storage display
 }
 
 document.addEventListener("DOMContentLoaded", () => {

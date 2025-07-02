@@ -754,6 +754,7 @@ function initializeSearch() {
 function initializePanelToggle() {
     const panelToggle = document.getElementById('panelToggle');
     const rightPanel = document.getElementById('rightPanel');
+    const body = document.body;
     
     if (panelToggle) {
         panelToggle.addEventListener('click', () => {
@@ -761,11 +762,53 @@ function initializePanelToggle() {
         });
     }
     
+    // Desktop hover behavior (only on screens > 1024px)
+    function handleDesktopHover() {
+        if (window.innerWidth > 1024) {
+            rightPanel.addEventListener('mouseenter', expandPanel);
+            rightPanel.addEventListener('mouseleave', collapsePanel);
+        } else {
+            rightPanel.removeEventListener('mouseenter', expandPanel);
+            rightPanel.removeEventListener('mouseleave', collapsePanel);
+        }
+    }
+    
+    function expandPanel() {
+        if (window.innerWidth > 1024) {
+            rightPanel.classList.add('expanded');
+            body.classList.add('panel-expanded');
+        }
+    }
+    
+    function collapsePanel() {
+        if (window.innerWidth > 1024) {
+            rightPanel.classList.remove('expanded');
+            body.classList.remove('panel-expanded');
+        }
+    }
+    
+    // Click to expand/collapse on desktop (alternative to hover)
+    let panelSections = document.querySelectorAll('.panelSection');
+    panelSections.forEach(section => {
+        section.addEventListener('click', (e) => {
+            if (window.innerWidth > 1024) {
+                e.stopPropagation();
+                if (!rightPanel.classList.contains('expanded')) {
+                    expandPanel();
+                    // Keep expanded for a moment to allow interaction
+                    setTimeout(() => {
+                        rightPanel.addEventListener('mouseleave', collapsePanel);
+                    }, 100);
+                }
+            }
+        });
+    });
+    
     // Close panel when clicking outside on mobile
     document.addEventListener('click', (e) => {
         if (window.innerWidth <= 1024) {
             const isClickInsidePanel = rightPanel.contains(e.target);
-            const isClickOnToggle = panelToggle.contains(e.target);
+            const isClickOnToggle = panelToggle && panelToggle.contains(e.target);
             
             if (!isClickInsidePanel && !isClickOnToggle && rightPanel.classList.contains('open')) {
                 rightPanel.classList.remove('open');
@@ -777,8 +820,17 @@ function initializePanelToggle() {
     window.addEventListener('resize', () => {
         if (window.innerWidth > 1024) {
             rightPanel.classList.remove('open');
+            body.classList.remove('panel-expanded');
+            handleDesktopHover();
+        } else {
+            rightPanel.classList.remove('expanded');
+            body.classList.remove('panel-expanded');
+            handleDesktopHover();
         }
     });
+    
+    // Initialize hover behavior
+    handleDesktopHover();
 }
 
 function performContentSearch() {

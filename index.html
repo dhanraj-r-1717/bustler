@@ -27,37 +27,46 @@
     <!-- Right Panel -->
     <div class="rightPanel" id="rightPanel">
       <div class="panelSection">
-        <h5>Search</h5>
-        <button class="searchToggleBtn" id="searchToggleBtn" title="Search Tasks">
-          <span class="searchIcon">🔍</span>
-          <span class="searchLabel">Search Tasks</span>
-        </button>
+        <div class="panelIcon">🔍</div>
+        <div class="panelContent">
+          <h5>Search</h5>
+          <button class="searchToggleBtn" id="searchToggleBtn" title="Search Tasks">
+            <span class="searchIcon">🔍</span>
+            <span class="searchLabel">Search Tasks</span>
+          </button>
+        </div>
       </div>
       
       <div class="panelSection">
-        <h5>Sort Order</h5>
-        <select class="sortSelect" id="sortSelect">
-          <option value="own">Own</option>
-          <option value="timeAsc">Created time: Asc</option>
-          <option value="timeDesc">Created time: Desc</option>
-          <option value="nameAsc">Name: Asc</option>
-          <option value="nameDesc">Name: Desc</option>
-        </select>
+        <div class="panelIcon">📊</div>
+        <div class="panelContent">
+          <h5>Sort Order</h5>
+          <select class="sortSelect" id="sortSelect">
+            <option value="own">Own</option>
+            <option value="timeAsc">Created time: Asc</option>
+            <option value="timeDesc">Created time: Desc</option>
+            <option value="nameAsc">Name: Asc</option>
+            <option value="nameDesc">Name: Desc</option>
+          </select>
+        </div>
       </div>
       
       <div class="panelSection">
-        <h5>Theme</h5>
-        <div class="themeControls">
-          <div class="darkModeWrapper">
-            <label class="toggleSwitch">
-              <input type="checkbox" id="darkModeCheckBox" />
-              <span class="slider"></span>
-            </label>
-            <span class="themeLabel">Dark Mode</span>
-          </div>
-          <div class="bgColorPicker">
-            <label for="colorPicker">Background Color:</label>
-            <input type="color" id="colorPicker" value="#fff" title="Change to preferred color">
+        <div class="panelIcon">🎨</div>
+        <div class="panelContent">
+          <h5>Theme</h5>
+          <div class="themeControls">
+            <div class="darkModeWrapper">
+              <label class="toggleSwitch">
+                <input type="checkbox" id="darkModeCheckBox" />
+                <span class="slider"></span>
+              </label>
+              <span class="themeLabel">Dark Mode</span>
+            </div>
+            <div class="bgColorPicker">
+              <label for="colorPicker">Background Color:</label>
+              <input type="color" id="colorPicker" value="#fff" title="Change to preferred color">
+            </div>
           </div>
         </div>
       </div>

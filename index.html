@@ -25,6 +25,9 @@
         <option value="nameAsc">Name: Asc</option>
         <option value="nameDesc">Name: Desc</option>
       </select>
+      <button class="searchToggleBtn" id="searchToggleBtn" title="Search Tasks">
+        <span class="searchIcon">🔍</span>
+      </button>
       <div class="darkModeWrapper">
         <span>Black Theme</span>
         <input type="checkbox" id="darkModeCheckBox" />
@@ -35,31 +38,29 @@
     </div>
     
     <!-- Search Section -->
-    <div class="searchSection" id="searchSection">
+    <div class="searchSection" id="searchSection" style="display: none;">
       <div class="searchControls">
-        <h4>Search Tasks by Date & Time</h4>
+        <h4>Search Tasks by Content</h4>
         <div class="searchInputs">
-          <div class="commonSearches">
-            <button class="searchBtn" data-range="today">Today</button>
-            <button class="searchBtn" data-range="yesterday">Yesterday</button>
-            <button class="searchBtn" data-range="thisWeek">This Week</button>
-            <button class="searchBtn" data-range="lastWeek">Last Week</button>
-            <button class="searchBtn" data-range="thisMonth">This Month</button>
+          <div class="contentSearch">
+            <input type="text" id="searchInput" placeholder="Enter keywords to search in tasks..." />
+            <button id="searchBtn">Search</button>
+            <button id="clearSearchBtn" class="clearBtn">Clear</button>
           </div>
-          <div class="customSearch">
-            <label for="searchDate">Target Date:</label>
-            <input type="date" id="searchDate" />
-            <label for="searchRange">Within:</label>
-            <select id="searchRange">
-              <option value="1">1 hour</option>
-              <option value="6">6 hours</option>
-              <option value="24">1 day</option>
-              <option value="72">3 days</option>
-              <option value="168">1 week</option>
-            </select>
-            <button id="customSearchBtn">Search</button>
+          <div class="searchOptions">
+            <label class="searchOption">
+              <input type="checkbox" id="caseSensitive" />
+              Case sensitive
+            </label>
+            <label class="searchOption">
+              <input type="checkbox" id="wholeWords" />
+              Whole words only
+            </label>
+            <label class="searchOption">
+              <input type="checkbox" id="includeCompleted" checked />
+              Include completed tasks
+            </label>
           </div>
-          <button id="clearSearchBtn" class="clearBtn">Clear Search</button>
         </div>
       </div>
       <div class="searchResults" id="searchResults" style="display: none;"></div>

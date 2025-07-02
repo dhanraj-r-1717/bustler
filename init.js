@@ -713,101 +713,93 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Search functionality
 function initializeSearch() {
-    // Common search buttons
-    const searchButtons = document.querySelectorAll('.searchBtn');
-    searchButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Remove active class from all buttons
-            searchButtons.forEach(btn => btn.classList.remove('active'));
-            // Add active class to clicked button
-            button.classList.add('active');
-            
-            const range = button.getAttribute('data-range');
-            performCommonSearch(range);
-        });
+    // Search toggle button
+    const searchToggleBtn = document.getElementById('searchToggleBtn');
+    const searchSection = document.getElementById('searchSection');
+    
+    searchToggleBtn.addEventListener('click', () => {
+        const isVisible = searchSection.style.display !== 'none';
+        if (isVisible) {
+            searchSection.style.display = 'none';
+            searchToggleBtn.classList.remove('active');
+        } else {
+            searchSection.style.display = 'block';
+            searchToggleBtn.classList.add('active');
+            // Focus on search input when opened
+            document.getElementById('searchInput').focus();
+        }
     });
 
-    // Custom search button
-    document.getElementById('customSearchBtn').addEventListener('click', () => {
-        performCustomSearch();
+    // Search button
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        performContentSearch();
+    });
+
+    // Search input - trigger search on Enter key
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+            performContentSearch();
+        }
     });
 
     // Clear search button
     document.getElementById('clearSearchBtn').addEventListener('click', () => {
         clearSearch();
     });
-
-    // Set default date to today
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('searchDate').value = today;
 }
 
-function performCommonSearch(range) {
-    const now = new Date();
-    let startDate, endDate;
+function performContentSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput.value.trim();
 
-    switch (range) {
-        case 'today':
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-            break;
-        case 'yesterday':
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            break;
-        case 'thisWeek':
-            const startOfWeek = now.getDate() - now.getDay(); // Sunday start
-            startDate = new Date(now.getFullYear(), now.getMonth(), startOfWeek);
-            endDate = new Date(now.getFullYear(), now.getMonth(), startOfWeek + 7);
-            break;
-        case 'lastWeek':
-            const startOfLastWeek = now.getDate() - now.getDay() - 7;
-            startDate = new Date(now.getFullYear(), now.getMonth(), startOfLastWeek);
-            endDate = new Date(now.getFullYear(), now.getMonth(), startOfLastWeek + 7);
-            break;
-        case 'thisMonth':
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-            break;
-        default:
-            return;
-    }
-
-    const results = searchTasksByDateRange(startDate, endDate);
-    displaySearchResults(results, `Tasks from ${range}`);
-}
-
-function performCustomSearch() {
-    const dateInput = document.getElementById('searchDate').value;
-    const rangeHours = parseInt(document.getElementById('searchRange').value);
-
-    if (!dateInput) {
-        alert('Please select a target date');
+    if (!searchTerm) {
+        alert('Please enter a search term');
         return;
     }
 
-    const targetDate = new Date(dateInput);
-    const startDate = new Date(targetDate.getTime() - (rangeHours * 60 * 60 * 1000));
-    const endDate = new Date(targetDate.getTime() + (rangeHours * 60 * 60 * 1000));
+    const caseSensitive = document.getElementById('caseSensitive').checked;
+    const wholeWords = document.getElementById('wholeWords').checked;
+    const includeCompleted = document.getElementById('includeCompleted').checked;
 
-    const results = searchTasksByDateRange(startDate, endDate);
-    const rangeText = rangeHours < 24 ? `${rangeHours} hour${rangeHours > 1 ? 's' : ''}` : `${Math.floor(rangeHours / 24)} day${Math.floor(rangeHours / 24) > 1 ? 's' : ''}`;
-    displaySearchResults(results, `Tasks within ${rangeText} of ${formatDate(targetDate)}`);
+    const results = searchTasksByContent(searchTerm, caseSensitive, wholeWords, includeCompleted);
+    displaySearchResults(results, `Search results for "${searchTerm}"`);
 }
 
-function searchTasksByDateRange(startDate, endDate) {
+function searchTasksByContent(searchTerm, caseSensitive = false, wholeWords = false, includeCompleted = true) {
     const results = [];
+    
+    // Prepare search term based on options
+    let processedSearchTerm = caseSensitive ? searchTerm : searchTerm.toLowerCase();
     
     inputs.forEach(category => {
         if (category && category.tasks) {
             category.tasks.forEach(task => {
-                if (task && task.id) {
-                    const taskDate = new Date(task.id);
-                    if (taskDate >= startDate && taskDate < endDate) {
+                if (task && task.name) {
+                    // Skip completed tasks if not included
+                    if (!includeCompleted && task.status === 'completed') {
+                        return;
+                    }
+
+                    let taskContent = caseSensitive ? task.name : task.name.toLowerCase();
+                    let isMatch = false;
+
+                    if (wholeWords) {
+                        // Create regex for whole word matching
+                        const regex = new RegExp(`\\b${escapeRegex(processedSearchTerm)}\\b`, caseSensitive ? 'g' : 'gi');
+                        isMatch = regex.test(taskContent);
+                    } else {
+                        // Simple substring search
+                        isMatch = taskContent.includes(processedSearchTerm);
+                    }
+
+                    if (isMatch) {
                         results.push({
                             task: task,
                             category: category,
-                            taskDate: taskDate
+                            taskDate: new Date(task.id),
+                            searchTerm: searchTerm,
+                            caseSensitive: caseSensitive,
+                            wholeWords: wholeWords
                         });
                     }
                 }
@@ -815,8 +807,17 @@ function searchTasksByDateRange(startDate, endDate) {
         }
     });
 
-    // Sort results by date (newest first)
-    results.sort((a, b) => b.taskDate.getTime() - a.taskDate.getTime());
+    // Sort results by relevance (exact matches first, then by date)
+    results.sort((a, b) => {
+        const aExactMatch = a.task.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const bExactMatch = b.task.name.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        if (aExactMatch && !bExactMatch) return -1;
+        if (!aExactMatch && bExactMatch) return 1;
+        
+        // If both have same relevance, sort by date (newest first)
+        return b.taskDate.getTime() - a.taskDate.getTime();
+    });
     
     return results;
 }
@@ -827,7 +828,7 @@ function displaySearchResults(results, title) {
     if (results.length === 0) {
         searchResultsDiv.innerHTML = `
             <h5>${title}</h5>
-            <div class="noSearchResults">No tasks found for the selected date range.</div>
+            <div class="noSearchResults">No tasks found matching your search criteria.</div>
         `;
     } else {
         const resultsHTML = `
@@ -846,18 +847,39 @@ function displaySearchResults(results, title) {
 }
 
 function createSearchResultCard(result) {
-    const { task, category, taskDate } = result;
+    const { task, category, taskDate, searchTerm, caseSensitive, wholeWords } = result;
     const formattedDate = formatDateTime(taskDate);
     const timeAgo = getTimeAgo(taskDate);
     
+    // Highlight search term in task name
+    let highlightedTaskName = escapeHtml(task.name);
+    if (searchTerm) {
+        highlightedTaskName = highlightSearchTerm(task.name, searchTerm, caseSensitive, wholeWords);
+    }
+    
     return `
         <div class="searchResultCard">
-            <div class="categoryName">${category.title}</div>
-            <div class="taskName">${escapeHtml(task.name)}</div>
+            <div class="categoryName">${escapeHtml(category.title)}</div>
+            <div class="taskName">${highlightedTaskName}</div>
             <div class="taskDate">Created: ${formattedDate} (${timeAgo})</div>
             <div class="taskStatus ${task.status}">${task.status}</div>
         </div>
     `;
+}
+
+function highlightSearchTerm(text, searchTerm, caseSensitive = false, wholeWords = false) {
+    if (!searchTerm) return escapeHtml(text);
+    
+    let escapedText = escapeHtml(text);
+    const flags = caseSensitive ? 'g' : 'gi';
+    
+    if (wholeWords) {
+        const regex = new RegExp(`\\b(${escapeRegex(searchTerm)})\\b`, flags);
+        return escapedText.replace(regex, '<span class="highlight">$1</span>');
+    } else {
+        const regex = new RegExp(`(${escapeRegex(searchTerm)})`, flags);
+        return escapedText.replace(regex, '<span class="highlight">$1</span>');
+    }
 }
 
 function clearSearch() {
@@ -866,14 +888,13 @@ function clearSearch() {
     searchResultsDiv.style.display = 'none';
     searchResultsDiv.innerHTML = '';
     
-    // Remove active class from all search buttons
-    const searchButtons = document.querySelectorAll('.searchBtn');
-    searchButtons.forEach(btn => btn.classList.remove('active'));
+    // Clear search input
+    document.getElementById('searchInput').value = '';
     
-    // Reset custom search inputs
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('searchDate').value = today;
-    document.getElementById('searchRange').value = '24';
+    // Reset search options
+    document.getElementById('caseSensitive').checked = false;
+    document.getElementById('wholeWords').checked = false;
+    document.getElementById('includeCompleted').checked = true;
 }
 
 // Helper functions
@@ -925,4 +946,8 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

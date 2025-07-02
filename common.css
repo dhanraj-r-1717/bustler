@@ -392,6 +392,114 @@ h3 {
     align-items: center;
 }
 
+.contentSearch {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+#searchInput {
+    flex: 1;
+    min-width: 250px;
+    padding: 10px 15px;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+#searchInput:focus {
+    border-color: #007bff;
+}
+
+.dark #searchInput {
+    background-color: #444;
+    border-color: #666;
+    color: #fff;
+}
+
+.dark #searchInput:focus {
+    border-color: #17a2b8;
+}
+
+#searchBtn {
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#searchBtn:hover {
+    background: linear-gradient(45deg, #0056b3, #004085);
+    transform: translateY(-2px);
+}
+
+.searchOptions {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.searchOption {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+.dark .searchOption {
+    color: #fff;
+}
+
+.searchOption input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.searchToggleBtn {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.searchToggleBtn:hover {
+    background: linear-gradient(45deg, #0056b3, #004085);
+    transform: scale(1.1);
+}
+
+.searchToggleBtn.active {
+    background: linear-gradient(45deg, #28a745, #1e7e34);
+}
+
+.searchIcon {
+    font-size: 14px;
+}
+
 .commonSearches {
     display: flex;
     gap: 10px;
@@ -511,6 +619,11 @@ h3 {
     min-width: 250px;
     max-width: 300px;
     border-left: 4px solid #007bff;
+    transition: transform 0.2s ease;
+}
+
+.searchResultCard:hover {
+    transform: translateY(-2px);
 }
 
 .dark .searchResultCard {
@@ -534,6 +647,19 @@ h3 {
     font-size: 16px;
     margin-bottom: 8px;
     line-height: 1.4;
+}
+
+.searchResultCard .taskName .highlight {
+    background-color: #ffeb3b;
+    color: #000;
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+.dark .searchResultCard .taskName .highlight {
+    background-color: #ff9800;
+    color: #000;
 }
 
 .searchResultCard .taskDate {

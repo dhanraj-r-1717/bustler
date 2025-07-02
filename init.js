@@ -600,14 +600,6 @@ function getNewTaskContainer() {
     return newDom;
 }
 
-async function randomQuote() {
-    try {
-        const response = await fetch("https://api.quotable.io/random");
-        const newData = await response.json();
-        document.getElementById("quote").innerHTML = `${newData.content} - ${newData.author}`;
-    } catch (e) {}
-}
-
 function setColor() {
     const colorEl = document.getElementById("colorPicker");
     colorEl.value = preference.bgColor;
@@ -662,7 +654,6 @@ function render() {
     currentTime();
     setColor();
     setDarkMode();
-    randomQuote();
     renderSort();
     updateStorageDisplay(); // Initialize storage display
 }

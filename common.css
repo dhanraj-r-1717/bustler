@@ -593,6 +593,7 @@ body.panel-expanded .rightTop {
     border-radius: 3px;
     overflow: hidden;
     border: 1px solid #ccc;
+    margin-top: 5px;
 }
 
 .dark .storageBar {

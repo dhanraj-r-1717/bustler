@@ -705,5 +705,224 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             render();
         }
+        
+        // Initialize search functionality
+        initializeSearch();
     });
 });
+
+// Search functionality
+function initializeSearch() {
+    // Common search buttons
+    const searchButtons = document.querySelectorAll('.searchBtn');
+    searchButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            searchButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            const range = button.getAttribute('data-range');
+            performCommonSearch(range);
+        });
+    });
+
+    // Custom search button
+    document.getElementById('customSearchBtn').addEventListener('click', () => {
+        performCustomSearch();
+    });
+
+    // Clear search button
+    document.getElementById('clearSearchBtn').addEventListener('click', () => {
+        clearSearch();
+    });
+
+    // Set default date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('searchDate').value = today;
+}
+
+function performCommonSearch(range) {
+    const now = new Date();
+    let startDate, endDate;
+
+    switch (range) {
+        case 'today':
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+            break;
+        case 'yesterday':
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            break;
+        case 'thisWeek':
+            const startOfWeek = now.getDate() - now.getDay(); // Sunday start
+            startDate = new Date(now.getFullYear(), now.getMonth(), startOfWeek);
+            endDate = new Date(now.getFullYear(), now.getMonth(), startOfWeek + 7);
+            break;
+        case 'lastWeek':
+            const startOfLastWeek = now.getDate() - now.getDay() - 7;
+            startDate = new Date(now.getFullYear(), now.getMonth(), startOfLastWeek);
+            endDate = new Date(now.getFullYear(), now.getMonth(), startOfLastWeek + 7);
+            break;
+        case 'thisMonth':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+            break;
+        default:
+            return;
+    }
+
+    const results = searchTasksByDateRange(startDate, endDate);
+    displaySearchResults(results, `Tasks from ${range}`);
+}
+
+function performCustomSearch() {
+    const dateInput = document.getElementById('searchDate').value;
+    const rangeHours = parseInt(document.getElementById('searchRange').value);
+
+    if (!dateInput) {
+        alert('Please select a target date');
+        return;
+    }
+
+    const targetDate = new Date(dateInput);
+    const startDate = new Date(targetDate.getTime() - (rangeHours * 60 * 60 * 1000));
+    const endDate = new Date(targetDate.getTime() + (rangeHours * 60 * 60 * 1000));
+
+    const results = searchTasksByDateRange(startDate, endDate);
+    const rangeText = rangeHours < 24 ? `${rangeHours} hour${rangeHours > 1 ? 's' : ''}` : `${Math.floor(rangeHours / 24)} day${Math.floor(rangeHours / 24) > 1 ? 's' : ''}`;
+    displaySearchResults(results, `Tasks within ${rangeText} of ${formatDate(targetDate)}`);
+}
+
+function searchTasksByDateRange(startDate, endDate) {
+    const results = [];
+    
+    inputs.forEach(category => {
+        if (category && category.tasks) {
+            category.tasks.forEach(task => {
+                if (task && task.id) {
+                    const taskDate = new Date(task.id);
+                    if (taskDate >= startDate && taskDate < endDate) {
+                        results.push({
+                            task: task,
+                            category: category,
+                            taskDate: taskDate
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    // Sort results by date (newest first)
+    results.sort((a, b) => b.taskDate.getTime() - a.taskDate.getTime());
+    
+    return results;
+}
+
+function displaySearchResults(results, title) {
+    const searchResultsDiv = document.getElementById('searchResults');
+    
+    if (results.length === 0) {
+        searchResultsDiv.innerHTML = `
+            <h5>${title}</h5>
+            <div class="noSearchResults">No tasks found for the selected date range.</div>
+        `;
+    } else {
+        const resultsHTML = `
+            <h5>${title} (${results.length} task${results.length > 1 ? 's' : ''})</h5>
+            <div class="searchResultsContainer">
+                ${results.map(result => createSearchResultCard(result)).join('')}
+            </div>
+        `;
+        searchResultsDiv.innerHTML = resultsHTML;
+    }
+    
+    searchResultsDiv.style.display = 'block';
+    
+    // Scroll to results
+    searchResultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function createSearchResultCard(result) {
+    const { task, category, taskDate } = result;
+    const formattedDate = formatDateTime(taskDate);
+    const timeAgo = getTimeAgo(taskDate);
+    
+    return `
+        <div class="searchResultCard">
+            <div class="categoryName">${category.title}</div>
+            <div class="taskName">${escapeHtml(task.name)}</div>
+            <div class="taskDate">Created: ${formattedDate} (${timeAgo})</div>
+            <div class="taskStatus ${task.status}">${task.status}</div>
+        </div>
+    `;
+}
+
+function clearSearch() {
+    // Clear search results
+    const searchResultsDiv = document.getElementById('searchResults');
+    searchResultsDiv.style.display = 'none';
+    searchResultsDiv.innerHTML = '';
+    
+    // Remove active class from all search buttons
+    const searchButtons = document.querySelectorAll('.searchBtn');
+    searchButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Reset custom search inputs
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('searchDate').value = today;
+    document.getElementById('searchRange').value = '24';
+}
+
+// Helper functions
+function formatDate(date) {
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function formatDateTime(date) {
+    return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function getTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+    const diffWeeks = Math.floor(diffDays / 7);
+    const diffMonths = Math.floor(diffDays / 30);
+
+    if (diffMonths > 0) {
+        return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
+    } else if (diffWeeks > 0) {
+        return `${diffWeeks} week${diffWeeks > 1 ? 's' : ''} ago`;
+    } else if (diffDays > 0) {
+        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    } else if (diffHours > 0) {
+        return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    } else {
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        if (diffMinutes > 0) {
+            return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`;
+        } else {
+            return 'Just now';
+        }
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}

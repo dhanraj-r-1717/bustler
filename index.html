@@ -33,6 +33,38 @@
           <input type="color" id="colorPicker" value="#fff" title="Change to preferred color">
       </div>
     </div>
+    
+    <!-- Search Section -->
+    <div class="searchSection" id="searchSection">
+      <div class="searchControls">
+        <h4>Search Tasks by Date & Time</h4>
+        <div class="searchInputs">
+          <div class="commonSearches">
+            <button class="searchBtn" data-range="today">Today</button>
+            <button class="searchBtn" data-range="yesterday">Yesterday</button>
+            <button class="searchBtn" data-range="thisWeek">This Week</button>
+            <button class="searchBtn" data-range="lastWeek">Last Week</button>
+            <button class="searchBtn" data-range="thisMonth">This Month</button>
+          </div>
+          <div class="customSearch">
+            <label for="searchDate">Target Date:</label>
+            <input type="date" id="searchDate" />
+            <label for="searchRange">Within:</label>
+            <select id="searchRange">
+              <option value="1">1 hour</option>
+              <option value="6">6 hours</option>
+              <option value="24">1 day</option>
+              <option value="72">3 days</option>
+              <option value="168">1 week</option>
+            </select>
+            <button id="customSearchBtn">Search</button>
+          </div>
+          <button id="clearSearchBtn" class="clearBtn">Clear Search</button>
+        </div>
+      </div>
+      <div class="searchResults" id="searchResults" style="display: none;"></div>
+    </div>
+    
     <div class="flex-container" id="taskContainer" />
     <script src="init.js"></script>
 </body>

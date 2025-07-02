@@ -357,3 +357,231 @@ h3 {
 .dark .storageIndicator.critical .storageText {
     color: #EF5350;
 }
+
+/* Search Section Styles */
+.searchSection {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.dark .searchSection {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+}
+
+.searchSection h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 18px;
+    text-align: center;
+}
+
+.dark .searchSection h4 {
+    color: #fff;
+}
+
+.searchInputs {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.commonSearches {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.searchBtn {
+    padding: 8px 16px;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.searchBtn:hover {
+    background: linear-gradient(45deg, #0056b3, #004085);
+    transform: translateY(-2px);
+}
+
+.searchBtn.active {
+    background: linear-gradient(45deg, #28a745, #1e7e34);
+}
+
+.customSearch {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.customSearch label {
+    font-weight: bold;
+    color: #333;
+}
+
+.dark .customSearch label {
+    color: #fff;
+}
+
+.customSearch input, .customSearch select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.dark .customSearch input, .dark .customSearch select {
+    background-color: #444;
+    border-color: #666;
+    color: #fff;
+}
+
+#customSearchBtn {
+    padding: 8px 16px;
+    background: linear-gradient(45deg, #17a2b8, #138496);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+#customSearchBtn:hover {
+    background: linear-gradient(45deg, #138496, #117a8b);
+    transform: translateY(-2px);
+}
+
+.clearBtn {
+    padding: 8px 16px;
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.clearBtn:hover {
+    background: linear-gradient(45deg, #c82333, #bd2130);
+    transform: translateY(-2px);
+}
+
+.searchResults {
+    margin-top: 20px;
+}
+
+.searchResults h5 {
+    color: #333;
+    font-size: 16px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.dark .searchResults h5 {
+    color: #fff;
+}
+
+.searchResultsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+.searchResultCard {
+    background-color: #fff;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    min-width: 250px;
+    max-width: 300px;
+    border-left: 4px solid #007bff;
+}
+
+.dark .searchResultCard {
+    background-color: #333;
+    border-left-color: #17a2b8;
+    color: #fff;
+}
+
+.searchResultCard .categoryName {
+    font-weight: bold;
+    color: #007bff;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.dark .searchResultCard .categoryName {
+    color: #17a2b8;
+}
+
+.searchResultCard .taskName {
+    font-size: 16px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.searchResultCard .taskDate {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
+.dark .searchResultCard .taskDate {
+    color: #ccc;
+}
+
+.searchResultCard .taskStatus {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+.searchResultCard .taskStatus.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.searchResultCard .taskStatus.completed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.dark .searchResultCard .taskStatus.active {
+    background-color: #1e4d23;
+    color: #d4edda;
+}
+
+.dark .searchResultCard .taskStatus.completed {
+    background-color: #4d1319;
+    color: #f8d7da;
+}
+
+.noSearchResults {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin: 20px 0;
+}
+
+.dark .noSearchResults {
+    color: #ccc;
+}
